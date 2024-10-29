@@ -40,6 +40,6 @@ class FornecedorUpdateView(SuccessMessageMixin, UpdateView):
 
 class FornecedorDeleteView(SuccessMessageMixin, DeleteView):
     model = Fornecedor
-    template_name = 'fornecedor_form.html'
+    template_name = 'fornecedor_apagar.html'
     success_url = reverse_lazy('fornecedores')
     success_message = 'Fornecedor apagado com sucesso!'
