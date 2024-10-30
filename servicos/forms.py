@@ -1,5 +1,7 @@
 from django import forms
+from django.forms import inlineformset_factory
 
+from produtosservico.models import ProdutosServico
 from .models import Servico
 
 class ServicoModelForm(forms.ModelForm):
@@ -12,3 +14,6 @@ class ServicoModelForm(forms.ModelForm):
             'descricao': {'required': 'A descrição do serviço é um campo obrigatório'},
             'preco': {'required': 'O preco do serviço é um campo obrigatório'},
         }
+
+
+ProdutosServicoInLine = inlineformset_factory(Servico, ProdutosServico, fk_name='servico', fields=('produto','quantidade'), extra=1, can_delete=True)
