@@ -43,7 +43,7 @@ INSTALLED_APPS = [
 
 INSTALLED_APPS += ['django_bootstrap5', 'stdimage',]
 
-INSTALLED_APPS += ['home','fornecedores', 'clientes', 'funcionarios', 'produtos', 'servicos','produtosservico' ]
+INSTALLED_APPS += ['home','fornecedores', 'clientes', 'funcionarios', 'produtos', 'servicos','produtosservico','agendamentos' ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
