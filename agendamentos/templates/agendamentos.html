@@ -38,7 +38,7 @@
                                         <td> {{ agendamento.cliente }} </td>
                                         <td> {{ agendamento.funcionario }} </td>
                                         <td>
-                                            {% for servico in agendadmento.servicos %}
+                                            {% for servico in agendamento.servicos %}
                                                 {% if forloop.last %}
                                                     {{ servico }} ({{servico.get_situacao_display}})
                                                 {% else %}
