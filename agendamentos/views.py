@@ -8,7 +8,7 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView, V
 from django.contrib import messages
 from django.views.generic.base import TemplateResponseMixin
 
-from agendamentos.forms import AgendamentoListForm, AgendamentoModelForm
+from agendamentos.forms import AgendamentoListForm, AgendamentoModelForm, AgendamentosServicoInLine
 from agendamentos.models import Agendamento
 
 
@@ -70,11 +70,11 @@ class AgendamentoInLineEditView(TemplateResponseMixin, View):
     template_name = 'agendamento_form_inline.html'
 
     def get_formset(self, data=None):
-        return AgendamentosServicoInline(instance=self.agendamento, data=data)
+        return AgendamentosServicoInLine(instance=self.agendamento, data=data)
 
     def dispatch (self, request, pk):
         self.agendamento = get_object_or_404(Agendamento, id=pk)
-        return super().dispath(request, pk)
+        return super().dispatch(request, pk)
 
     def get(self, request, *args, **kwargs):
         formset =  self.get_formset()
