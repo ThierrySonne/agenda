@@ -2,9 +2,11 @@ from email import message_from_string
 
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.paginator import Paginator
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, View
 from django.contrib import messages
+from django.views.generic.base import TemplateResponseMixin
 
 from agendamentos.forms import AgendamentoListForm, AgendamentoModelForm
 from agendamentos.models import Agendamento
@@ -63,3 +65,24 @@ class AgendamentoDeleteView(SuccessMessageMixin, DeleteView):
     template_name = 'agendamento_apagar.html'
     success_url = reverse_lazy('agendamentos')
     success_message = 'Agendamento excluído com sucesso!'
+
+class AgendamentoInLineEditView(TemplateResponseMixin, View):
+    template_name = 'agendamento_form_inline.html'
+
+    def get_formset(self, data=None):
+        return AgendamentosServicoInline(instance=self.agendamento, data=data)
+
+    def dispatch (self, request, pk):
+        self.agendamento = get_object_or_404(Agendamento, id=pk)
+        return super().dispath(request, pk)
+
+    def get(self, request, *args, **kwargs):
+        formset =  self.get_formset()
+        return self.render_to_response({'agendamento': self.agendamento, 'formset': formset})
+
+    def post(self, request, *args, **kwargs):
+        formset = self.get_formset(data=request.POST)
+        if formset.is_valid():
+            formset.save()
+            return redirect('agendamentos')
+        return self.render_to_response({'agendamento': self.agendamento, 'formset': formset})
