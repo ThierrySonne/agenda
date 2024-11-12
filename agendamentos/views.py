@@ -1,8 +1,10 @@
 from email import message_from_string
 
 from django.contrib.messages.views import SuccessMessageMixin
+from django.core.mail import send_mail
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect
+from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, View, DetailView
 from django.contrib import messages
@@ -93,7 +95,7 @@ class AgendamentoInLineEditView(TemplateResponseMixin, View):
                     if produtosservico:
                         for prd in produtosservico:
                             produto = Produto.objects.get(pk=prd.produto.pk)
-                            if produto.qauntidade < prd.quantidade and not item.get('DELETE'):
+                            if produto.quantidade < prd.quantidade and not item.get('DELETE'):
                                 messages.error(self.request,
                                                         f'Atenção! Quatidade em estoque insuficiente para o produto {produto.nome}')
                                 return self.render_to_response({'agendamento': self.agendamento, 'formset': formset})
@@ -127,4 +129,30 @@ class AgendamentoExibir(DetailView):
                                 produto.save()
                 agendamento.status = 'F'
                 agendamento.save()
+                self.enviar_email(agendamento)
         return agendamento
+
+
+    def enviar_email(self, agendamento):
+        email =[]
+        email.append(agendamento.cliente.email)
+        descricao = []
+        for servico in agendamento.servicos:
+            descricao.append(f'{servico} - R$ {servico.preco} ({servico.get_situacao_display()})')
+
+        dados = {'cliente': agendamento.cliente.nome,
+                 'horario': agendamento.horario,
+                 'funcionario': agendamento.funcionario.nome,
+                 'descricao': descricao,
+                 'valor': agendamento.valor, }
+
+        texto_email = render_to_string('emails/texto_email.txt', dados)
+        html_email = render_to_string('emails/texto_email.html', dados)
+        send_mail(subject='Lavacar - Serviço concluído',
+                  message= texto_email,
+                  from_email='thierryflowers@gmail.com',
+                  recipient_list=email,
+                  html_message=html_email,
+                  fail_silently=False,
+                    )
+        return redirect('agendamentos')
