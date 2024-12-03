@@ -1,5 +1,6 @@
 from email import message_from_string
 
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.mail import send_mail
 from django.core.paginator import Paginator
@@ -17,7 +18,9 @@ from produtos.models import Produto
 from produtosservico.models import ProdutosServico
 
 
-class AgendamentosView(ListView):
+class AgendamentosView(PermissionRequiredMixin, ListView):
+    permission_required = 'agendamentos.view_agendamento'
+    permission_denied_message = 'Vizualizar agendamentos'
     model = Agendamento
     template_name = 'agendamentos.html'
 
@@ -50,28 +53,34 @@ class AgendamentosView(ListView):
 
 
 
-class AgendamentoAddView(SuccessMessageMixin, CreateView):
+class AgendamentoAddView(PermissionRequiredMixin, LoginRequiredMixin, SuccessMessageMixin, CreateView):
+    permission_required = 'agendamentos.add_agendamento'
+    permission_denied_message = 'Cadastrar agendamentos'
     model = Agendamento
     form_class = AgendamentoModelForm
     template_name = 'agendamento_form.html'
     success_url = reverse_lazy('agendamentos')
     success_message = 'Agendamento cadastrado com sucesso!'
 
-class AgendamentoUpdateView(SuccessMessageMixin, UpdateView):
+class AgendamentoUpdateView(PermissionRequiredMixin, LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+    permission_required = 'agendamentos.change_agendamento'
+    permission_denied_message = 'Editar agendamento'
     model = Agendamento
     form_class = AgendamentoModelForm
     template_name = 'agendamento_form.html'
     success_url = reverse_lazy('agendamentos')
     success_message = 'Agendamento alterado com sucesso!'
 
-class AgendamentoDeleteView(SuccessMessageMixin, DeleteView):
+class AgendamentoDeleteView(PermissionRequiredMixin, LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+    permission_required = 'agendamentos.delete_agendamento'
+    permission_denied_message = 'Eliminar agendamento'
     model = Agendamento
     form_class = AgendamentoModelForm
     template_name = 'agendamento_apagar.html'
     success_url = reverse_lazy('agendamentos')
     success_message = 'Agendamento excluído com sucesso!'
 
-class AgendamentoInLineEditView(TemplateResponseMixin, View):
+class AgendamentoInLineEditView(LoginRequiredMixin, TemplateResponseMixin, View):
     template_name = 'agendamento_form_inline.html'
 
     def get_formset(self, data=None):
@@ -107,7 +116,7 @@ class AgendamentoInLineEditView(TemplateResponseMixin, View):
         else:
             return self.render_to_response({'agendamento': self.agendamento, 'formset': formset})
 
-class AgendamentoExibir(DetailView):
+class AgendamentoExibir(LoginRequiredMixin, DetailView):
     model = Agendamento
     template_name = 'agendamento_exibir.html'
 
